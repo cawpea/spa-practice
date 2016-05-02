@@ -130,6 +130,20 @@ spa.shell = (function () {
          return bool_return;
     };
     
+    /*
+    アンカーのチャットコンポーネントを変更する
+    
+    引数:
+     position_type: 'closed'または'open'
+    動作:
+     可能ならURIアンカーパラメータ'chat'を要求値に変更する
+    戻り値:
+     true: 要求されたアンカー部分が更新された
+     false: 要求されたアンカー部分が更新されなかった
+    例外発行:
+     なし
+    */
+    
     //イベントハンドラー
     //hashchangeイベントを処理する
     onHashchange = function( event ) {
@@ -193,6 +207,11 @@ spa.shell = (function () {
         $.uriAnchor.configModule({
             schema_map : configMap.anchor_schema_map
         });
+        
+        //機能モジュールを構成して初期化する
+        spa.chat.configModule( {} );
+        spa.chat.initModule( jqueryMap.$chat );
+        
         //URIアンカー変更イベントを処理する
         $(window)
             .bind('hashchange', onHashchange)
