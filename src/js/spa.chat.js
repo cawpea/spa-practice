@@ -36,8 +36,10 @@ spa.chat = (function () {
         },
         slider_open_time: 250,
         slider_close_time: 250,
-        slider_opened_em: 16,
+        slider_opened_em: 18,
         slider_closed_em: 2,
+        slider_opened_min_em: 10,
+        window_height_min_em: 20,
         slider_opened_title: 'Click to close',
         slider_closed_title: 'Click to open',
         chat_model: null,
@@ -59,7 +61,9 @@ spa.chat = (function () {
     setSliderPosition,
     onClickToggle,
     configModule,
-    initModule;
+    initModule,
+    removeSlider,
+    handleResize;
     
     /*
     ユーティリティメソッド
@@ -90,10 +94,17 @@ spa.chat = (function () {
     };
     setPxSizes = function () {
         var px_per_em,
+         window_height_em,
          opened_height_em;
          
         px_per_em = getEmSize( jqueryMap.$slider.get(0) );
-        opened_height_em = configMap.slider_opened_em;
+        window_height_em = Math.floor(
+            ($(window).height() / px_per_em) + 0.5
+        );
+        opened_height_em =
+            window_height_em > configMap.window_height_min_em ? 
+            configMap.slider_opened_em : 
+            configMap.slider_opened_min_em;
         
         stateMap.px_per_em = px_per_em;
         stateMap.slider_closed_px = configMap.slider_closed_em * px_per_em;
@@ -101,6 +112,40 @@ spa.chat = (function () {
         jqueryMap.$sizer.css({
             height: (opened_height_em - 2) * px_per_em
         });
+    };
+    
+    /*
+    chatSliderを削除する
+    
+    引数: なし
+    戻り値: true,
+    例外発行: なし
+    */
+    removeSlider = function () {
+        if( jqueryMap.$slider ) {
+            jqueryMap.$slider.remove();
+            jqueryMap = {};
+        }
+        stateMap.$append_target = null;
+        stateMap.position_type = 'closed';
+        configMap.chat_model = null;
+        configMap.people_model = null;
+        configMap.set_chat_anchor = null;
+        return true;
+    };
+    
+    /*
+    イベントハンドラ
+    */
+    onClickToggle = function(event) {
+        var set_chat_anchor = configMap.set_chat_anchor;
+        if( stateMap.position_type === 'opened' ) {
+            set_chat_anchor('closed');
+        }
+        else if( stateMap.position_type === 'closed' ) {
+            set_chat_anchor('opened');
+        }
+        return false;
     };
     
     /*
@@ -222,20 +267,27 @@ spa.chat = (function () {
         return true;
     };
     
-    onClickToggle = function(event) {
-        var set_chat_anchor = configMap.set_chat_anchor;
+    /*
+    ウインドウリサイズイベントに対し、必要に応じてモジュールが提供する表示を調整する
+    */
+    handleResize = function () {
+        if( !jqueryMap.$slider ) {
+            return false;
+        }
+        setPxSizes();
         if( stateMap.position_type === 'opened' ) {
-            set_chat_anchor('closed');
+            jqueryMap.$slider.css({
+                height: stateMap.slider_opened_px
+            });
+            return true;
         }
-        else if( stateMap.position_type === 'closed' ) {
-            set_chat_anchor('opened');
-        }
-        return false;
     };
     
     return {
         setSliderPosition: setSliderPosition,
         configModule: configModule,
-        initModule: initModule
+        initModule: initModule,
+        removeSlider: removeSlider,
+        handleResize: handleResize
     };
 }());

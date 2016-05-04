@@ -24,25 +24,33 @@ spa.shell = (function () {
         chat_extend_height: 450,
         chat_retract_height: 15,
         chat_extended_title: 'Click to retract',
-        chat_retracted_title: 'Click to extend'
+        chat_retracted_title: 'Click to extend',
+        resize_interval: 200
     },
     stateMap = { 
-        anchor_map: null
+        $container: undefined,
+        anchor_map: null,
+        resize_idto: undefined
     },
     jqueryMap = {},
     copyAnchorMap,
     setJqueryMap,
     changeAnchorPart,
     onHashchange,
+    onResize,
     setChatAnchor,
     initModule;
     
-    //ユーティリティメソッド
+    /*
+    ユーティリティメソッド
+    */
     copyAnchorMap = function () {
         return $.extend( true, {}, stateMap.anchor_map );
     };
     
-    //DOMメソッド
+    /*
+    イベントハンドラ
+    */
     setJqueryMap = function () {
         var $container = stateMap.$container;
         jqueryMap = {
@@ -144,7 +152,9 @@ spa.shell = (function () {
         });
     };
     
-    //イベントハンドラー
+    /*
+    イベントハンドラ
+    */
     //hashchangeイベントを処理する
     onHashchange = function( event ) {
         var _s_chat_previous, 
@@ -194,11 +204,16 @@ spa.shell = (function () {
          return false;
     };
     
-    onClickChat = function ( event ) {
-        changeAnchorPart({
-            chat: ( stateMap.is_chat_retracted ? 'open' : 'closed' )
-        });
-        return false;
+    onResize = function () {
+        if(stateMap.resize_idto) {
+            return true;
+        }
+        spa.chat.handleResize();
+        stateMap.resize_idto = setTimeout(function () {
+            stateMap.resize_idto = undefined; 
+        }, configMap.resize_interval);
+        
+        return true;
     };
     
     //パブリックメソッド
@@ -234,6 +249,7 @@ spa.shell = (function () {
         
         //URIアンカー変更イベントを処理する
         $(window)
+            .bind('resize', onResize)
             .bind('hashchange', onHashchange)
             .trigger('hashchange');
     };
