@@ -1,11 +1,15 @@
 spa.shell = (function () {
+    'use strict';
+    
     //モジュールスコープ
     var configMap = {
         main_html: String()
             + '<div class="spa-shell-head">'
-                + '<div class="spa-shell-head-logo"></div>'
+                + '<div class="spa-shell-head-logo">'
+                    + '<h1>SPA</h1>'
+                    + '<p>javascript end to end</p>'
+                + '</div>'
                 + '<div class="spa-shell-head-acct"></div>'
-                + '<div class="spa-shell-head-search"></div>'
             + '</div>'
             + '<div class="spa-shell-main">'
                 + '<div class="spa-shell-main-nav"></div>'
@@ -36,8 +40,11 @@ spa.shell = (function () {
     copyAnchorMap,
     setJqueryMap,
     changeAnchorPart,
-    onHashchange,
     onResize,
+    onHashchange,
+    onTapAcct,
+    onLogin,
+    onLogout, 
     setChatAnchor,
     initModule;
     
@@ -54,46 +61,11 @@ spa.shell = (function () {
     setJqueryMap = function () {
         var $container = stateMap.$container;
         jqueryMap = {
-            $container: $container
+            $container: $container, 
+            $acct: $container.find('.spa-shell-head-acct'), 
+            $nav: $container.find('.spa-shell-main-nav')
         };
     };
-    
-    //チャットスライダーの拡大や格納
-    toggleChat = function ( do_extend, callback ) {
-        var px_chat_ht = jqueryMap.$chat.height(),
-         is_open = px_chat_ht === configMap.chat_extend_height,
-         is_closed = px_chat_ht === configMap.chat_retract_height,
-         is_sliding = !is_open && !is_closed;
-        
-        if(is_sliding){return false};
-        
-        if(do_extend) {
-            jqueryMap.$chat.animate(
-                {height: configMap.chat_extend_height},
-                configMap.chat_extend_height,
-                function () {
-                    jqueryMap.$chat.attr(
-                        'title', configMap.chat_extended_title
-                    );
-                    stateMap.is_chat_retracted = false;
-                    if(callback) { callback(jqueryMap.$chat) }
-                }
-            );
-            return true;
-        }
-        
-        jqueryMap.$chat.animate(
-            {height : configMap.chat_retract_height}, 
-            function () {
-                jqueryMap.$chat.attr(
-                    'title', configMap.chat_retracted_title
-                );
-                stateMap.is_chat_retracted = true;
-                if(callback) { callback(jqueryMap.$chat) }
-            }
-        );
-        return true;
-    }
     
     //URIアンカー要素部分を変更する
     changeAnchorPart = function ( arg_map ) {
@@ -161,7 +133,8 @@ spa.shell = (function () {
          _s_chat_proposed,
          s_chat_proposed,
          is_ok = true,
-         anchor_map_previous = copyAnchorMap();
+         anchor_map_previous = copyAnchorMap(),
+         anchor_map_proposed;
          
          //アンカーの解析を試みる
          try {
@@ -216,7 +189,33 @@ spa.shell = (function () {
         return true;
     };
     
-    //パブリックメソッド
+    onTapAcct = function( event ) {
+        var acct_text,
+            user_name,
+            user = spa.model.people.get_user();
+        
+        if( user.get_is_anon() ) {
+            user_name = prompt('Please sign-in');
+            spa.model.people.login(user_name);
+            jqueryMap.$acct.text('... processing ...');
+        }
+        else {
+            spa.model.people.logout();
+        }
+        return false;
+    };
+    
+    onLogin = function ( event, login_user ) {
+        jqueryMap.$acct.text( login_user.name );
+    };
+    
+    onLogout = function ( event, logout_user ) {
+        jqueryMap.$acct.text('Please sign-in');
+    };
+    
+    /*
+    パブリックメソッド
+    */
     
     /*
     ユーザに機能を提供するようにチャットに指示する
@@ -246,6 +245,11 @@ spa.shell = (function () {
             people_model: spa.model.people
         });
         spa.chat.initModule( jqueryMap.$container );
+        
+        $.gevent.subscribe( $container, 'spa-login', onLogin );
+        $.gevent.subscribe( $container, 'spa-logout', onLogout );
+        
+        jqueryMap.$acct.text('Please sign-in').bind('utap', onTapAcct);
         
         //URIアンカー変更イベントを処理する
         $(window)
