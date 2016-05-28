@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <title>SPA</title>
+        
+        <link rel="stylesheet" href="css/spa.css"/>
+        <link rel="stylesheet" href="css/spa.chat.css"/>
+        <link rel="stylesheet" href="css/spa.avtr.css"/>
+        <link rel="stylesheet" href="css/spa.shell.css"/>
+        
+        <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+        <script src="js/lib/taffy.js"></script>
+        <script src="js/jq/jquery-1.12.3.js"></script>
+        <script src="js/jq/jquery.uriAnchor.js"></script>
+        <script src="js/jq/jquery.event.gevent.js"></script>
+        <script src="js/jq/jquery.event.ue.js"></script>
+        
+        <script src="js/spa.js"></script>
+        <script src="js/spa.util.js"></script>
+        <script src="js/spa.data.js"></script>
+        <script src="js/spa.fake.js"></script>
+        <script src="js/spa.model.js"></script>
+        <script src="js/spa.util_b.js"></script>
+        <script src="js/spa.chat.js"></script>
+        <script src="js/spa.avtr.js"></script>
+        <script src="js/spa.shell.js"></script>
+        <script>
+            $(function () { spa.initModule( $('#spa') ); });
+        </script>
+    </head>
+    <body>
+        <div id="spa">
+        </div>
+    </body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Socket Test</title>
+		<script src="https://code.jquery.com/jquery-1.12.4.min.js"   integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="   crossorigin="anonymous"></script>
+		<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+		<script id="script_a" src="/js/data.js"></script>
+		<script>
+			/*
+			var socket = io();
+			socket.on('message', function ( data ) {
+				$('.jsc-count').text( data );
+			});
+			*/
+			$(function () {
+				$('body').html( b );
+			});
+			var socket = io();
+			socket.on('script', function (path) {
+				console.log('catch the server event.');
+				var $newScript = $('<script>')
+						.attr('id', 'script_a')
+						.attr('script', path);
+				$('#script_a').remove();
+				$('head').append( $newScript );
+				console.log(b);
+				$('body').html(b);
+				location.reload();
+			});
+		</script>
+	</head>
+	<body>
+		<div>
+			<p class="jsc-count">Loading...</p>
+		</div>
+	</body>
+</html>
