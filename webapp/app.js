@@ -44,7 +44,7 @@ white: true
 
 var http = require('http'), 
     express = require( 'express' ), 
-    routes = require('./routes'), 
+    routes = require('./lib/routes'), 
     app = express(), 
     server = http.createServer( app );
 
@@ -52,7 +52,7 @@ var http = require('http'),
 app.configure( function () {
     app.use( express.bodyParser() );
     app.use( express.methodOverride() );
-    app.use( express.basicAuth( 'user', 'spa' ) );
+    // app.use( express.basicAuth( 'user', 'spa' ) );
     app.use( express.static( __dirname + '/public' ) );
     app.use( app.router );
 });

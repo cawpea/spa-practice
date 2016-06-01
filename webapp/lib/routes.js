@@ -8,7 +8,9 @@ white: true
 
 'use strict';
 
-var configRoutes;
+var configRoutes, 
+	crud = require('./crud'), 
+	makeMongoId = crud.makeMongoId;
 
 configRoutes = function ( app, server ) {
 	app.get( '/', function ( request, response ) {
@@ -19,30 +21,53 @@ configRoutes = function ( app, server ) {
 		next();
 	});
 	app.get( '/:obj_type/list', function ( request, response ) {
-		//response.contentType( 'json' );
-		response.send( {title: request.params.obj_type + ' list'} );
+		crud.read(
+			request.params.obj_type, 
+			null,
+			{}, 
+			function ( map_list ) {
+				response.send( map_list );
+			}	
+		);
 	});
 	app.post( '/:obj_type/create', function ( request, response ) {
-		//response.contentType( 'json' );
-		response.send( {title: request.params.obj_type + ' created'} );
+		crud.construct(
+			request.params.obj_type, 
+			request.body, 
+			function ( result_map ) {
+				response.send( result_map );
+			}
+		);
 	});
 	app.get( '/:obj_type/read/:id([0-9]+)', function ( request, response ) {
-		//response.contentType( 'json' );
-		response.send({
-			title: request.params.obj_type + ' with id ' + request.params.id + ' found'
-		});
+		console.log('1¥n');
+		crud.read(
+			request.params.obj_type, 
+			{_id: makeMongoId( request.params.id )},
+			{}, 
+			function ( map_list ) {
+				response.send( map_list );
+			}
+		);
 	});
 	app.post('/:obj_type/update/id:([0-9]+)', function (request, response) {
-		//response.contentType( 'json' );
-		response.send({
-			title: request.params.obj_type + ' with id ' + request.params.id + ' updated'
-		});
+		crud.update(
+			request.params.obj_type, 
+			{_id: makeMongoId( request.params.id )}, 
+			request.body, 
+			function ( result_map ) {
+				response.send( result_map );
+			}
+		);
 	});
 	app.get('/:obj_type/delete/id:([0-9]+)', function (request, response) {
-		//response.contentType('json');
-		response.send({
-			title: request.params.obj_type + ' with id ' + request.params.id + ' deleted'
-		});
+		crud.destroy(
+			request.params.obj_type, 
+			{_id: makeMongoId( request.params.id )}, 
+			function ( result_map ) {
+				response.send( result_map );
+			}	
+		);
 	});
 };
 
