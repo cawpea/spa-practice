@@ -15,8 +15,10 @@ spa.model = (function () {
     stateMap = {
         anon_user: null,
         is_connected: false,
+        cid_serial: 0,
         people_cid_map: {},
-        people_db: TAFFY()
+        people_db: TAFFY(),
+        user: null
     },
     isFakeData = false,
     personProto,

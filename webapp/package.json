@@ -18,7 +18,8 @@
   "homepage": "https://github.com/masaki-ohsumi/js-practice#readme",
   "devDependencies": {
     "gulp": "^3.9.1",
-    "gulp-webserver": "^0.9.1"
+    "gulp-webserver": "^0.9.1",
+    "node-inspector": "^0.12.8"
   },
   "dependencies": {
     "JSV": "^4.0.2",

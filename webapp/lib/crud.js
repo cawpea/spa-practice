@@ -105,7 +105,6 @@ readObj = function ( obj_type, find_map, fields_map, callback ) {
 };
 
 readOneObj = function ( obj_type, find_map, fields_map, callback ) {
-	console.log('2¥n');
 	var type_check_map = checkType( obj_type );
 	
 	if( type_check_map ) {
@@ -134,10 +133,9 @@ updateObj = function ( obj_type, find_map, set_map, callback ) {
 		set_map, 
 		function ( error_list ) {
 			if( error_list.length === 0 ) {
-				db.collection( obj_type ).findAndModify(
+				db.collection( obj_type ).updateMany(
 					find_map, 
 					{$set: set_map}, 
-					{w:1, multi: true, upsert: false}, 
 					function ( inner_error, update_count ) {
 						callback({
 							update_count: update_count
