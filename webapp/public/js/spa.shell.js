@@ -229,6 +229,12 @@ spa.shell = (function () {
      なし
     */
     initModule = function ($container) {
+        var data_mode_str;
+
+        data_mode_str = 
+            window.location.search === '?fake' ? 'fake' : 'live';
+        spa.model.setDataMode( data_mode_str );       
+
         stateMap.$container = $container;
         $container.html( configMap.main_html );
         setJqueryMap();

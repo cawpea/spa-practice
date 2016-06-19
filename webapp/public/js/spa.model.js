@@ -20,7 +20,7 @@ spa.model = (function () {
         people_db: TAFFY(),
         user: null
     },
-    isFakeData = false,
+    isFakeData = true,
     personProto,
     makeCid,
     clearPeopleDb,
@@ -29,7 +29,8 @@ spa.model = (function () {
     removePerson,
     people,
     chat, 
-    initModule;
+    initModule, 
+    setDataMode;
     
     /*
     chatオブジェクトAPI
@@ -425,10 +426,15 @@ spa.model = (function () {
         
         stateMap.user = stateMap.anon_user;
     };
+
+    setDataMode = function( arg_str ) {
+        isFakeData = arg_str === 'fake' ? true :  false;
+    };
     
     return {
         initModule: initModule,
         people: people, 
-        chat: chat
+        chat: chat, 
+        setDataMode: setDataMode
     };
 }());

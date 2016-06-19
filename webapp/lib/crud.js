@@ -18,6 +18,7 @@ var checkType,
 	checkSchema, 
 	clearIsOnline, 
 	fs = require('fs'), 
+	cache = require('./cache'), 
 	jsv = require('JSV').JSV, 
 	mongodb = require('mongodb'), 
 	mongoClient = require('mongodb').MongoClient, 
@@ -97,10 +98,14 @@ readObj = function ( obj_type, find_map, fields_map, callback ) {
 		return;
 	}
 	
-	db.collection( obj_type ).find(
-		find_map
-	).toArray(function (err, result) {
-		callback( result );
+	//サーバーキャッシュが存在すれば利用する
+	cache.getValue( find_map, callback, function () {
+		db.collection( obj_type ).find(
+			find_map
+		).toArray(function (err, result) {
+			cache.setValue( find_map, result );
+			callback( result );
+		});
 	});
 };
 
@@ -158,6 +163,7 @@ destroyObj = function ( obj_type, find_map, callback ) {
 		callback( type_check_map );
 		return;
 	}
+	cache.deleteKey( find_map );
 	db.collection( obj_type ).remove(
 		find_map, 
 		option_map, 
