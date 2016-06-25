@@ -21,7 +21,7 @@ makeString = function (key_data) {
 	
 deleteKey = function (key) {
 	redisClient.del( makeString( key ) );
-};
+};	
 
 getValue = function ( key, hit_callback, miss_callback ) {
 	redisClient.get(

@@ -12,17 +12,17 @@ white: true
 
 spa.fake = (function () {
     'use strict';
-    
-    var peopleList, 
-        fakeIdSerial, 
-        makeFakeId, 
-        mockSio, 
+
+    var peopleList,
+        fakeIdSerial,
+        makeFakeId,
+        mockSio,
         fakeIdSerial = 5;
-     
+
     makeFakeId = function () {
         return 'id_' + String( fakeIdSerial++ );
     };
-    
+
     peopleList = [
         {
             name: 'Betty',
@@ -32,7 +32,7 @@ spa.fake = (function () {
                 left: 20,
                 'background-color': 'rgb(128, 128, 128)'
             }
-        }, 
+        },
         {
             name: 'Mika',
             _id: 'id_02',
@@ -41,16 +41,16 @@ spa.fake = (function () {
                 left: 20,
                 'background-color': 'rgb(128, 255, 128)'
             }
-        }, 
+        },
         {
             name: 'Pebbles',
             _id: 'id_03',
             css_map: {
-                top: 100, 
-                left: 20, 
+                top: 100,
+                left: 20,
                 'background-color': 'rgb(128, 192, 192)'
             }
-        }, 
+        },
         {
             name: 'Wilma',
             _id: 'id_04',
@@ -61,29 +61,29 @@ spa.fake = (function () {
             }
         }
     ];
-    
+
     mockSio = (function () {
         var on_sio,
          emit_sio,
-         emit_mock_msg, 
+         emit_mock_msg,
          send_listchange,
-         listchange_idto, 
+         listchange_idto,
          callback_map = {};
-         
+
         on_sio = function ( msg_type, callback ) {
             callback_map[ msg_type ] = callback;
         };
         emit_sio = function ( msg_type, data ) {
-            var person_map, 
+            var person_map,
                 i;
-            
+
             //3秒間の遅延後に[userupdate]コールバックで[adduser]イベントに応答する
             if( msg_type === 'adduser' && callback_map.userupdate ) {
                 setTimeout(
                     function () {
                         person_map = {
-                            _id: makeFakeId(), 
-                            name: data.name, 
+                            _id: makeFakeId(),
+                            name: data.name,
                             css_map: data.css_map
                         };
                         peopleList.push( person_map );
@@ -91,32 +91,34 @@ spa.fake = (function () {
                     }
                 , 3000);
             }
-            
+
             //2秒間の遅延後に「updatechat」コールバックで「updatechat」イベントに応答する。ユーザ情報を送り返す。
             if( msg_type === 'updatechat' && callback_map.updatechat ) {
                 setTimeout( function () {
                     var user = spa.model.people.get_user();
                     callback_map.updatechat([{
-                        dest_id: user.id, 
-                        dest_name: user.name, 
-                        sender_id: data.dest_id, 
+                        dest_id: user.id,
+                        dest_name: user.name,
+                        sender_id: data.dest_id,
                         msg_text: 'Thanks for the note, ' + user.name
                     }]);
                 }, 2000);
             }
-            
+
             if( msg_type === 'leavechat' ) {
                 //ログイン状態をリセットする
                 delete callback_map.listchange;
                 delete callback_map.updatechat;
-                
+
                 if( listchange_idto ) {
                     clearTimeout( listchange_idto );
                     listchange_idto = undefined;
                 }
-                send_listchange();
+                if( !data ) {
+                    send_listchange();
+                }
             }
-            
+
             //サーバーへの「updateavatar」メッセージとデータの送信をシミュレートする
             if( msg_type === 'updateavatar' && callback_map.listchange ) {
                 //「listchange」メッセージの受信をシミュレートする
@@ -129,16 +131,16 @@ spa.fake = (function () {
                 callback_map.listchange([peopleList]);
             }
         };
-        
+
         emit_mock_msg = function () {
             setTimeout( function () {
                 var user = spa.model.people.get_user();
                 if( callback_map.updatechat ) {
                     callback_map.updatechat([{
-                        dest_id: user.id, 
-                        dest_name: user.name, 
-                        sender_id: 'id_04', 
-                        msg_text: 'Hi there ' + user.name + '! Wilima here.'
+                        dest_id: user.id,
+                        dest_name: user.name,
+                        sender_id: 'id_04',
+                        msg_text: 'Hi there ' + user.name + '! Wilma here.'
                     }]);
                 }
                 else {
@@ -146,7 +148,7 @@ spa.fake = (function () {
                 }
             }, 8000)
         };
-        
+
         //1秒に1回listchangeコールバックを使うようにする。一度成功したら止める。
         send_listchange = function () {
             listchange_idto = setTimeout(function () {
@@ -160,13 +162,13 @@ spa.fake = (function () {
             }, 1000);
         };
         send_listchange();
-        
+
         return {
-            emit: emit_sio, 
+            emit: emit_sio,
             on: on_sio
         };
     }());
-    
+
     return {
         mockSio: mockSio
     };
